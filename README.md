@@ -34,12 +34,7 @@ Un userscript moderne qui améliore considérablement l'interface web d'Emulatio
 - **Layout propre** sans scrollbars parasites
 
 ###  Raccourcis Clavier
-- **`/`** : Focus sur la recherche
 - **`r`** : Recharger les gamelists
-- **`←/→`** : Navigation entre les pages
-- **`k`** : Ouvrir le modal Kill
-- **`g`** : Basculer l'affichage des systèmes
-- **`n`** : Basculer l'affichage "Current"
 
 ## Installation
 
