@@ -1,121 +1,73 @@
-# Batocera ES Web – Visual, UX & Systems Dock Enhancer
+Batocera ES Web Service – Interface Web améliorée
+=================================================
 
-Un userscript moderne qui améliore considérablement l'interface web d'EmulationStation de Batocera avec des fonctionnalités avancées de filtrage, tri, navigation et gestion visuelle.
+Interface Web améliorée prête à l’emploi pour l’interface « Web API » d’EmulationStation (Batocera). Elle conserve les endpoints d’origine et ajoute une interface moderne et responsive : dock des systèmes, recherche/filtres/tri, vues grille/liste, pagination, fiche du jeu en cours avec Kill/Play, etc.
 
-## Fonctionnalités
+Fonctionnalités
+---------------
+- Dock des systèmes en bas (ordre d’origine conservé)
+	- Champ de filtre, zoom ±, sélecteur rapide en modale (plein écran sur mobile)
+- Barre d’outils des jeux (affichable depuis la barre du haut)
+	- Recherche par nom/genre, options de tri (nom/année/sessions/favoris), filtres (Favoris, Jamais joués, RetroAchievements)
+	- Bascule Grille/Liste avec lignes compactes (troncature + métadonnées)
+	- Export de la liste courante en JSON
+- Pagination au‑dessus du dock avec sélection du nombre d’éléments par page (10 → Tous)
+- Section « Jeu en cours » (cliquable)
+	- Ouvre une modale d’infos détaillée : Année, Genre, Succès (RA), Chemin, Sessions, Dernière session, Joueurs, Développeur, Éditeur, Favori, Note
+	- Boutons : Play (si chemin dispo) et Kill (si jeu en cours)
+- Actions dans la barre du haut : Systems (affiche/masque le dock), Current, Random (jeu aléatoire filtré), Reload (reloadgamelists), Kill
+- Le titre de la barre affiche « Système – N jeux »
+- Persistance de l’état (recherche, tri, filtres, page, vue)
+- Thème sombre et mise en page mobile‑first
 
-###  Gestion des Jeux
-- **Barre d'outils fixe** sous la bannière principale
-- **Recherche instantanée** par nom ou genre
-- **Tri avancé** : Nom (A→Z/Z→A), Année, Sessions de jeu, Favoris d'abord
-- **Filtres intelligents** : Favoris uniquement, Jamais joués, Jeux avec succès
-- **Pagination flexible** : 10/20/50/100/Tous les jeux par page
-- **Bouton Aléatoire** pour lancer un jeu au hasard (respecte les filtres)
-- **Export JSON** de la liste filtrée
-- **Persistance** des préférences utilisateur
 
-###  Dock des Systèmes
-- **Interface moderne** remplaçant le carousel Bootstrap d'origine
-- **Filtrage et tri** des systèmes par nom
-- **Systèmes favoris** épinglables (★)
-- **Historique récents** avec badges visuels
-- **Zoom ajustable** des tuiles système
-- **Défilement fluide** horizontal (molette, drag, flèches)
-- **Menu contextuel** (clic droit) : Ouvrir, Aléatoire, Recharger, Épingler
-- **Compteur de jeux** au survol de chaque système
-- **Mise en avant** du système actif et en cours d'exécution
+Installation / Test rapide avec Winscp connecté en SSH a batocera
+--------------------------
+1) Sauvegardez les fichiers d’origine sur Batocera (recommandé):
+	 - /usr/share/emulationstation/resources/services/index.html
+	 - /usr/share/emulationstation/resources/services/style.css
 
-###  Améliorations Visuelles
-- **Grille responsive** moderne pour les jeux
-- **Thème sombre** pour les modales de détails
-- **Contrôle des barres de défilement** : Auto/Masquer/Fines
-- **Design cohérent** avec ombres, transitions et effets hover
-- **Favoris mis en valeur** avec contours dorés
-- **Layout propre** sans scrollbars parasites
+2) Copiez les fichiers de ce repo sur Batocera (remplacement):
+	 - index.html → /usr/share/emulationstation/resources/services/index.html
+	 - style.css  → /usr/share/emulationstation/resources/services/style.css
 
-###  Raccourcis Clavier
-- **`r`** : Recharger les gamelists
+3) Ouvrez l’interface Web dans votre navigateur:
+	 - http://batocera:1234 ou http://<IP-de-votre-batocera>:1234
 
-## Installation
+Utilisation
+-----------
+- Bouton Systems (barre du haut): affiche/masque le dock des systèmes
+- Icône “liste” à droite du filtre systèmes (dans le dock): ouvre le sélecteur de systèmes (avec logos et compte de jeux)
+- Icône loupe/filtre (barre du haut): affiche/masque la barre d’outils de recherche/tri
+- Vue Grid/List: bouton dans la barre d’outils
+- Pagination et taille de page: barre au‑dessus du dock
+- Modale “Infos”: via le bouton Infos d’un jeu (ou en cliquant la section Current)
+	- Play: lance le jeu
+	- Kill: tue l’émulateur/jeu en cours
 
-### Chrome / Chromium / Edge / Brave
+Raccourcis clavier
+------------------
+- / : focus sur la recherche
+- Flèche gauche/droite : page précédente/suivante
+- r : Reload gamelists
 
-1. **Installer Tampermonkey** :
-   - Aller sur [Tampermonkey pour Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
-   - Cliquer sur "Ajouter à Chrome"
+Mise à jour
+-----------
+Remplacez simplement à nouveau `index.html` et `style.css` par les versions plus récentes. Un rafraîchissement du navigateur suffit en général; sinon redémarrez EmulationStation.
 
-2. **Installer le script** :
-   - Copier le code du userscript complet
-   - Ouvrir Tampermonkey Dashboard (icône → Dashboard)
-   - Cliquer sur l'onglet "Utilitaires"
-   - Coller l'URL ou le code dans "Installer depuis l'URL"
-   - Ou créer un nouveau script et coller le code
+Retour arrière (rollback)
+-------------------------
+Remettez vos fichiers d’origine sauvegardés dans `/usr/share/emulationstation/resources/services/` et rechargez la page. 
 
-### Firefox
+Dépannage
+---------
+- Page vide / pas de systèmes ou jeux
+	- Vérifiez que “Web API interface” est activé (Settings → Developer)
+	- Essayez de redémarrer
+- Styles/JS ne chargent pas
+	- Videz le cache du navigateur (Ctrl+F5)
 
-1. **Installer Greasemonkey** :
-   - Aller sur [Greasemonkey pour Firefox](https://addons.mozilla.org/fr/firefox/addon/greasemonkey/)
-   - Cliquer sur "Ajouter à Firefox"
-
-2. **Installer le script** :
-   - Copier le code du userscript
-   - Cliquer sur l'icône Greasemonkey
-   - "Nouveau script utilisateur" → Coller le code
-   - Sauvegarder
-
-### Violentmonkey (Alternative cross-browser)
-
-1. **Installer Violentmonkey** :
-   - [Chrome](https://chrome.google.com/webstore/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag)
-   - [Firefox](https://addons.mozilla.org/fr/firefox/addon/violentmonkey/)
-   - [Edge](https://microsoftedge.microsoft.com/addons/detail/violentmonkey/eeagobfjdenkkddmbclomhiblgggliao)
-
-2. **Installer le script** :
-   - Ouvrir le Dashboard Violentmonkey
-   - "+" → "Nouveau script"
-   - Remplacer le contenu par le code du userscript
-   - Ctrl+S pour sauvegarder
-
-## ⚙️ Configuration
-
-### Première utilisation
-1. Accéder à l'interface web de Batocera (généralement `http://batocera.local:1234`)
-2. Le script se charge automatiquement
-3. La barre d'outils apparaît sous la bannière principale
-4. Le dock des systèmes remplace le carousel en bas
-
-### Réglages disponibles
-- **Barres de défilement** : Auto/Masquer/Fines (dock systèmes)
-- **Zoom systèmes** : Boutons +/- pour ajuster la taille
-- **Filtres jeux** : Persistants entre les sessions
-- **Pagination** : Taille de page mémorisée
-
-### URLs supportées
-Le script fonctionne sur :
-- `http://batocera.local:1234/*`
-- `http://batocera:1234/*`
-- `http://*:1234/*`
-
-## 🔧 Compatibilité
-
-- **Batocera** : Toutes les versions récentes avec interface web
-- **Navigateurs** : Chrome 80+, Firefox 75+, Edge 80+, Safari 13+
-- **Responsive** : Adapté aux écrans desktop et mobiles
-- **Performance** : Optimisé pour de grandes collections (1000+ jeux)
-
-## 🐛 Dépannage
-
-### Le script ne se charge pas
-- Vérifier que l'extension userscript est activée
-- Vérifier l'URL correspond aux patterns supportés
-- F12 → Console pour voir les erreurs éventuelles
-
-### Interface cassée
-- Ctrl+F5 pour vider le cache
-- Vérifier qu'aucune autre extension ne modifie le CSS
-- Désactiver temporairement le script pour tester
-
-### Barres de défilement visibles
-- Changer le réglage "Barres" de "Auto" vers "Masquer"
-- Redémarrer le navigateur si nécessaire
-
+Notes
+-----
+- L’ordre des systèmes est celui d’origine (pas de tri forcé)
+- Les préférences (filtres, recherche, page, vue…) sont conservées dans localStorage du navigateur
