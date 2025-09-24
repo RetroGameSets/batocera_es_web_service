@@ -149,7 +149,6 @@ const addToolbar = () => {
             <div class="btn-group btn-group-sm ml-1" role="group" aria-label="Affichage">
                 <button id="view-grid" type="button" class="btn btn-outline-secondary" title="Affichage grille"><i class="fa fa-th" aria-hidden="true"></i></button>
                 <button id="view-list" type="button" class="btn btn-outline-secondary" title="Affichage liste"><i class="fa fa-list" aria-hidden="true"></i></button>
-            </div>
 
             <div class="ck-group">
                 <label><input type="checkbox" id="fav"> Favoris</label>
@@ -194,15 +193,12 @@ const addToolbar = () => {
         }
     };
     applyViewButtons();
-    // page size moved to bottom pager
-
     search.addEventListener('input', (e) => { gamesState.query = e.target.value; gamesState.page = 1; saveGames(); renderFiltered(); });
     sort.addEventListener('change', (e) => { gamesState.sort = e.target.value; gamesState.page = 1; saveGames(); renderFiltered(); });
     fav.addEventListener('change', (e) => { gamesState.favOnly = e.target.checked; gamesState.page = 1; saveGames(); renderFiltered(); });
     unplayed.addEventListener('change', (e) => { gamesState.unplayedOnly = e.target.checked; gamesState.page = 1; saveGames(); renderFiltered(); });
     cheevos.addEventListener('change', (e) => { gamesState.cheevosOnly = e.target.checked; gamesState.page = 1; saveGames(); renderFiltered(); });
-    // page size change handler moved to bottom pager
-
+    
     // view mode toggle
     if (viewGridBtn) viewGridBtn.addEventListener('click', ()=>{ gamesState.view='grid'; saveGames(); applyViewButtons(); renderFiltered(); });
     if (viewListBtn) viewListBtn.addEventListener('click', ()=>{ gamesState.view='list'; saveGames(); applyViewButtons(); renderFiltered(); });
@@ -218,15 +214,12 @@ const addToolbar = () => {
         search.value = '';
         sort.value = 'name-asc';
         fav.checked = unplayed.checked = cheevos.checked = false;
-        // bottom select if present
         const ps = document.getElementById('bottom-page-size');
         if (ps) ps.value = '100';
         saveGames();
-        // Re-render using full gamesAll list with cleared filters
         renderFiltered();
     });
 
-    // random button moved to top navbar
     exportBtn.addEventListener('click', () => {
         const arr = getFilteredSorted();
         const minimal = arr.map(g => ({ name:g.name, path:g.path, genre:g.genre||null, year:getYear(g), playcount:playCount(g), favorite:isFavGame(g), cheevos:hasCheevos(g) }));
@@ -364,6 +357,7 @@ function createListItemElement(game) {
                 data-rating="${escapeHtml(String(game.rating||''))}"
                 data-lastplayed="${escapeHtml(String(game.lastplayed||''))}"
                 data-favorite="${isFavGame(game)}"
+                data-id="${escapeHtml(String(game.id||''))}"
             >Infos</button>
         </div>
     `;
@@ -439,6 +433,8 @@ function setDetailModal(game) {
     const marg = document.getElementById('detailModalBody');
     const pic = document.getElementById('detailModalImg');
     const facts = document.getElementById('detailFacts');
+    const media = document.getElementById('detailMediaLinks');
+    const mediaFooter = document.getElementById('detailMediaLinksFooter');
     if (mtitle) mtitle.textContent = game?.name || '';
     if (marg) marg.innerHTML = game?.desc || '';
     if (pic) pic.src = game?.image || game?.thumbnail || '';
@@ -487,6 +483,49 @@ function setDetailModal(game) {
             pb.onclick = null;
         }
     }
+
+    // Build media links (manual/map/retroachievements) if system and game id are present
+    const mediaTarget = mediaFooter || media;
+    if (mediaTarget) {
+        mediaTarget.innerHTML = '';
+        const sys = sysState?.selected || currentSystemName || '';
+        const gid = game?.id || '';
+        if (sys && gid) {
+            const manualUrl = buildMediaUrl(sys, gid, 'manual');
+            const mapUrl = buildMediaUrl(sys, gid, 'map');
+            const raId = (game?.cheevosId || '').toString().trim();
+            const raUrl = raId ? `https://retroachievements.org/game/${encodeURIComponent(raId)}` : '';
+            const frag = document.createDocumentFragment();
+
+            const btn = (url, title, icon) => {
+                const a = document.createElement('a');
+                a.href = url; a.target = '_blank'; a.rel = 'noreferrer';
+                a.className = 'btn btn-outline-info media-btn'; a.title = title; a.style.display='none';
+                a.innerHTML = `<i class="fa ${icon}" aria-hidden="true"></i><span class="ml-2 d-none d-sm-inline">${title}</span>`;
+                frag.appendChild(a); return a;
+            };
+            const mBtn = btn(manualUrl, 'Manuel', 'fa-book');
+            const mapBtn = btn(mapUrl, 'Carte/Map', 'fa-map');
+            let raBtn = null;
+            if (raUrl) {
+                raBtn = btn(raUrl, 'RetroAchievements', 'fa-trophy');
+                // RA link doesn't need probing; it's an external site
+                raBtn.style.display = 'inline-flex';
+            }
+            mediaTarget.appendChild(frag);
+
+            // Probe availability to avoid broken links
+            const checkUrlExists = async (url) => {
+                try { const h = await fetch(url, { method:'HEAD' }); if (h.ok) return true; } catch {}
+                try { const g = await fetch(url, { method:'GET', headers:{ 'Range':'bytes=0-0' } }); return g.ok; } catch {}
+                return false;
+            };
+            (async ()=>{
+                try { if (await checkUrlExists(manualUrl)) mBtn.style.display='inline-flex'; } catch {}
+                try { if (await checkUrlExists(mapUrl)) mapBtn.style.display='inline-flex'; } catch {}
+            })();
+        }
+    }
 }
 
 function detailFill(ev) {
@@ -509,6 +548,8 @@ function detailFill(ev) {
             rating: d.rating || '',
             lastplayed: d.lastplayed || '',
             favorite: d.favorite || 'false',
+            cheevosId: d.cheevosid || '',
+            id: d.id || ''
         };
         setDetailModal(game);
     } catch { 
@@ -529,6 +570,13 @@ function detailFill(ev) {
         else
             pic.src = "";
     }
+}
+
+function buildMediaUrl(systemName, gameId, mediaType){
+    const s = encodeURIComponent(systemName);
+    const id = encodeURIComponent(gameId);
+    const mt = encodeURIComponent(mediaType);
+    return `/systems/${s}/games/${id}/media/${mt}`;
 }
 
 // Virtual scrolling variables (moved to top)
@@ -607,7 +655,9 @@ function createGameCardElement(game) {
         ' data-publisher="' + escapeHtml(game.publisher || '') + '"' +
         ' data-rating="' + escapeHtml(String(game.rating || '')) + '"' +
         ' data-lastplayed="' + escapeHtml(String(game.lastplayed || '')) + '"' +
-        ' data-favorite="' + (isFavGame(game)) + '"' +
+    ' data-favorite="' + (isFavGame(game)) + '"' +
+    ' data-cheevosid="' + escapeHtml(String(game.cheevosId || '')) + '"' +
+    ' data-id="' + escapeHtml(String(game.id || '')) + '"' +
         ' value="Infos" onClick="detailFill()">';
     cardHtml += '</div>'; // card-footer
 
@@ -639,26 +689,51 @@ function loadGames(name) {
     if (gl) gl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div><p class="mt-3">Loading games...</p></div>';
 
     var xhr = new XMLHttpRequest();
+    xhr.timeout = 10000; // 10s safety
     xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            if (currentSystemName === name) {
-                var myArr = JSON.parse(this.responseText);
-                myArr.sort(getOrder('name'));
-                showGames(myArr);
-                // Update navbar title with system name and games count
-                (function(){
-                    const navTitle = document.getElementById('navSystemTitle');
-                    if (!navTitle) return;
-                    const sys = sysState.systems.find(s => s.name === name);
-                    const title = (sys && (sys.fullname || sys.name)) || name || '';
-                    const count = Array.isArray(myArr) ? myArr.filter(g => String(g.hidden)!=='true').length : 0;
-                    navTitle.textContent = `${title} - ${count} games`;
-                })();
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                if (currentSystemName === name) {
+                    try {
+                        var myArr = JSON.parse(this.responseText);
+                        myArr.sort(getOrder('name'));
+                        showGames(myArr);
+                        // Update navbar title with system name and games count
+                        (function(){
+                            const navTitle = document.getElementById('navSystemTitle');
+                            if (!navTitle) return;
+                            const sys = sysState.systems.find(s => s.name === name);
+                            const title = (sys && (sys.fullname || sys.name)) || name || '';
+                            const count = Array.isArray(myArr) ? myArr.filter(g => String(g.hidden)!=='true').length : 0;
+                            navTitle.textContent = `${title} - ${count} games`;
+                        })();
+                    } catch (e) {
+                        renderLoadError(name, 'Invalid response');
+                    }
+                }
+            } else {
+                renderLoadError(name, `HTTP ${this.status}`);
             }
         }
     };
-    xhr.open('GET', '/systems/' + name + '/games');
+    xhr.ontimeout = function(){ renderLoadError(name, 'Timeout'); };
+    xhr.onerror = function(){ renderLoadError(name, 'Network error'); };
+    xhr.open('GET', '/systems/' + encodeURIComponent(name) + '/games');
     xhr.send();
+}
+
+function renderLoadError(name, reason){
+    if (currentSystemName !== name) return;
+    const gl = document.getElementById('gameList');
+    if (gl) gl.innerHTML = `<div class="text-center p-5 text-warning">Impossible de charger les jeux (${escapeHtml(reason||'')}).</div>`;
+    // Keep empty list state and update navbar with 0
+    showGames([]);
+    const navTitle = document.getElementById('navSystemTitle');
+    if (navTitle) {
+        const sys = sysState.systems.find(s => s.name === name);
+        const title = (sys && (sys.fullname || sys.name)) || name || '';
+        navTitle.textContent = `${title} - 0 games`;
+    }
 }
 
 function removeItem(arr, value) {
@@ -1145,12 +1220,14 @@ Confirm you want to kill the running emulator and game.
 <div class="card-body">
 <p class="card-text" id="detailModalBody"></p>
 <div id="detailFacts" class="detail-facts"></div>
+<div id="detailMediaLinks" class="detail-media-links" aria-label="Liens médias"></div>
 </div>
 </div>
 <div class="modal-footer">
-<input type="button" class="btn btn-primary" id="detailPlayBtn" value="Play" style="display:none">
-<input type="button" class="btn btn-danger" id="detailKillBtn" value="Kill" style="display:none">
-<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <div class="modal-media-left" id="detailMediaLinksFooter" aria-label="Liens médias"></div>
+    <input type="button" class="btn btn-primary" id="detailPlayBtn" value="Play" style="display:none">
+    <input type="button" class="btn btn-danger" id="detailKillBtn" value="Kill" style="display:none">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 </div>
 </div>
 </div>
