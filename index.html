@@ -44,7 +44,7 @@
 
     <!-- Systems picker modal -->
     <div class="modal fade" id="systemsModal" tabindex="-1" role="dialog" aria-labelledby="systemsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down" role="document" style="max-width: 720px; width: 95%;">
+        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down" role="document">
             <div class="modal-content" style="background:#0f172a; color:#e5e7eb;">
                 <div class="modal-header">
                     <h5 class="modal-title" id="systemsModalLabel">Systèmes</h5>
@@ -61,14 +61,6 @@
                 </div>
             </div>
         </div>
-        <style>
-            @media (min-width: 769px){ #systemsModal .modal-dialog { height: 85vh; } #systemsModal .modal-content { height: 100%; } #systemsModal .modal-body { overflow-y:auto; } }
-            @media (max-width: 768px){ #systemsModal .modal-dialog { margin:0; max-width:100%; width:100%; height:100%; } #systemsModal .modal-content{ height:100%; border-radius:0; } }
-            #systemsModalList .list-group-item{ display:flex; align-items:center; gap:10px; cursor:pointer; background:#111827; color:#e5e7eb; border-color: rgba(255,255,255,.08); }
-            #systemsModalList .list-group-item:hover{ background:#1f2937; }
-            #systemsModalList .sys-logo{ width:56px; height:40px; object-fit:contain; }
-            #systemsModalList .sys-text{ flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        </style>
     </div>
 
     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">

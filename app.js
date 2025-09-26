@@ -15,6 +15,36 @@ const forceVisibleGames = (arr) => (Array.isArray(arr) ? arr.map(g => ({ ...g, h
 const debounce = (fn, wait = 150) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), wait); }; };
 const clearChildren = (el) => { while (el && el.firstChild) el.removeChild(el.firstChild); };
 
+// Cache for URL existence checks to avoid repeated requests
+const urlExistsCache = new Map();
+
+// Utility function to check if a URL exists (with caching and timeout)
+const checkUrlExists = async (url) => {
+    // Check cache first
+    if (urlExistsCache.has(url)) {
+        return urlExistsCache.get(url);
+    }
+    
+    try { 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1000); // 1s timeout
+        
+        const response = await fetch(url, { 
+            method: 'HEAD',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const exists = response.ok;
+        urlExistsCache.set(url, exists);
+        return exists;
+    } catch {
+        // Cache negative result to avoid retrying
+        urlExistsCache.set(url, false);
+        return false;
+    }
+};
+
 const escapeHtml = (unsafe) => unsafe
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -185,8 +215,6 @@ const addToolbar = () => {
             </div>
 
             <span class="spacer"></span>
-            <button id="reset" class="btn btn-sm btn-outline-secondary btn-min" title="Réinitialiser filtres/tri/page">Réinit.</button>
-            <button id="export" class="btn btn-sm btn-outline-secondary btn-min" title="Exporter (JSON)">Exporter</button>
         </div>
     `;
     
@@ -205,8 +233,6 @@ const setupToolbarEvents = (bar) => {
     const fav = qs('#fav', bar);
     const unplayed = qs('#unplayed', bar);
     const cheevos = qs('#cheevos', bar);
-    const exportBtn = qs('#export', bar);
-    const resetBtn = qs('#reset', bar);
 
     // Set initial values
     search.value = gamesState.query;
@@ -249,49 +275,6 @@ const setupToolbarEvents = (bar) => {
         gamesState.page = 1; 
         saveGames(); 
         renderFiltered(); 
-    });
-
-    resetBtn.addEventListener('click', () => {
-        gamesState.query = '';
-        gamesState.sort = 'name-asc';
-        gamesState.favOnly = false;
-        gamesState.unplayedOnly = false;
-        gamesState.cheevosOnly = false;
-        gamesState.pageSize = 100;
-        gamesState.page = 1;
-        
-        search.value = '';
-        sort.value = 'name-asc';
-        fav.checked = unplayed.checked = cheevos.checked = false;
-        
-        const ps = document.getElementById('bottom-page-size');
-        if (ps) ps.value = '100';
-        
-        saveGames();
-        renderFiltered();
-    });
-
-    exportBtn.addEventListener('click', () => {
-        const arr = getFilteredSorted();
-        const minimal = arr.map(g => ({ 
-            name: g.name, 
-            path: g.path, 
-            genre: g.genre || null, 
-            year: getYear(g), 
-            playcount: playCount(g), 
-            favorite: isFavGame(g), 
-            cheevos: hasCheevos(g) 
-        }));
-        const text = JSON.stringify(minimal, null, 2);
-        
-        try { 
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text);
-                alert(`Liste exportée (${minimal.length} éléments) dans le presse-papiers.`);
-            }
-        } catch { 
-            alert(`Liste exportée (${minimal.length} éléments).`); 
-        }
     });
 };
 
@@ -400,6 +383,14 @@ const createGameCardElement = (game) => {
     if (isFavGame(game)) {
         cardHtml += '<i class="fa fa-star" style="margin-left:2px; margin-right:2px"></i>';
     }
+    
+    // Add manual/map icons (will be shown/hidden via async check)
+    const currentSys = sysState?.selected || currentSystemName || '';
+    const currentGameId = game?.id || '';
+    if (currentSys && currentGameId) {
+        cardHtml += `<i class="fa fa-book manual-icon" style="margin-left:2px; margin-right:2px; display:none;" title="Manuel disponible"></i>`;
+        cardHtml += `<i class="fa fa-map map-icon" style="margin-left:2px; margin-right:2px; display:none;" title="Carte disponible"></i>`;
+    }
 
     // Play count
     const pc = playCount(game);
@@ -433,6 +424,32 @@ const createGameCardElement = (game) => {
     cardHtml += '</div>';
 
     cardDiv.innerHTML = cardHtml;
+    
+    // Async check for manual/map availability (debounced to reduce server load)
+    const systemName = sysState?.selected || currentSystemName || '';
+    const gameId = game?.id || '';
+    if (systemName && gameId) {
+        const manualIcon = cardDiv.querySelector('.manual-icon');
+        const mapIcon = cardDiv.querySelector('.map-icon');
+        
+        // Use setTimeout to batch requests and avoid overwhelming the server
+        setTimeout(async () => {
+            try {
+                if (manualIcon) {
+                    const manualUrl = buildMediaUrl(systemName, gameId, 'manual');
+                    const exists = await checkUrlExists(manualUrl);
+                    if (exists) manualIcon.style.display = 'inline';
+                }
+                
+                if (mapIcon) {
+                    const mapUrl = buildMediaUrl(systemName, gameId, 'map');
+                    const exists = await checkUrlExists(mapUrl);
+                    if (exists) mapIcon.style.display = 'inline';
+                }
+            } catch {}
+        }, Math.random() * 500); // Random delay to spread requests over time
+    }
+    
     return cardDiv;
 };
 
@@ -449,7 +466,7 @@ const createListItemElement = (game) => {
         <div class="li-thumb">${thumb ? `<img src="${thumb}" alt="" loading="lazy">` : ''}</div>
         <div class="li-main">
             <div class="li-title" title="${escapeHtml(game.name||'')}">${escapeHtml(game.name||'')}</div>
-            <div class="li-meta">${year ? year : ''}${year && genre ? ' · ' : ''}${genre ? escapeHtml(genre) : ''}${(fav||chee) ? ' · ' : ''}${fav ? '★' : ''}${fav && chee ? ' ' : ''}${chee ? '🏆' : ''}</div>
+            <div class="li-meta">${year ? year : ''}${year && genre ? ' · ' : ''}${genre ? escapeHtml(genre) : ''}${(fav||chee) ? ' · ' : ''}${fav ? '★' : ''}${fav && chee ? ' ' : ''}${chee ? '🏆' : ''}<span class="manual-icon" style="display:none;" title="Manuel disponible"> 📖</span><span class="map-icon" style="display:none;" title="Carte disponible"> 🗺️</span></div>
         </div>
         <div class="li-actions">
             <button class="btn btn-sm btn-primary" title="Jouer">Play</button>
@@ -479,6 +496,28 @@ const createListItemElement = (game) => {
     
     const infoBtn = row.querySelector('.li-actions .btn.btn-info');
     infoBtn?.addEventListener('click', detailFill);
+    
+    // Async check for manual/map availability in list view
+    const listSys = sysState?.selected || currentSystemName || '';
+    const listGameId = game?.id || '';
+    if (listSys && listGameId) {
+        const manualIcon = row.querySelector('.manual-icon');
+        const mapIcon = row.querySelector('.map-icon');
+        
+        if (manualIcon) {
+            const manualUrl = buildMediaUrl(listSys, listGameId, 'manual');
+            checkUrlExists(manualUrl).then(exists => {
+                if (exists) manualIcon.style.display = 'inline';
+            }).catch(() => {});
+        }
+        
+        if (mapIcon) {
+            const mapUrl = buildMediaUrl(listSys, listGameId, 'map');
+            checkUrlExists(mapUrl).then(exists => {
+                if (exists) mapIcon.style.display = 'inline';
+            }).catch(() => {});
+        }
+    }
     
     return row;
 };
@@ -679,17 +718,6 @@ const setDetailModal = (game) => {
             mediaTarget.appendChild(frag);
 
             // Probe availability
-            const checkUrlExists = async (url) => {
-                try { 
-                    const h = await fetch(url, { method: 'HEAD' }); 
-                    if (h.ok) return true; 
-                } catch {}
-                try { 
-                    const g = await fetch(url, { method: 'GET', headers: { 'Range': 'bytes=0-0' } }); 
-                    return g.ok; 
-                } catch {}
-                return false;
-            };
             
             (async () => {
                 try { if (await checkUrlExists(manualUrl)) mBtn.style.display = 'inline-flex'; } catch {}
@@ -866,8 +894,19 @@ const setupDockEvents = (wrap) => {
     const strip = qs('#sys-strip');
     const scrollBy = () => Math.max(240, Math.round(strip.clientWidth * 0.8));
     
-    qs('#sys-left').addEventListener('click', () => strip.scrollBy({ left: -scrollBy(), behavior: 'smooth' }));
-    qs('#sys-right').addEventListener('click', () => strip.scrollBy({ left: scrollBy(), behavior: 'smooth' }));
+    qs('#sys-left').addEventListener('click', () => {
+        const currentScroll = strip.scrollLeft;
+        const scrollAmount = scrollBy();
+        const newPosition = Math.max(0, currentScroll - scrollAmount);
+        strip.scrollTo({ left: newPosition, behavior: 'smooth' });
+    });
+    qs('#sys-right').addEventListener('click', () => {
+        const currentScroll = strip.scrollLeft;
+        const scrollAmount = scrollBy();
+        const maxScroll = strip.scrollWidth - strip.clientWidth;
+        const newPosition = Math.min(maxScroll, currentScroll + scrollAmount);
+        strip.scrollTo({ left: newPosition, behavior: 'smooth' });
+    });
 
     strip.addEventListener('wheel', (e) => { 
         const d = (e.deltaY || e.deltaX); 
@@ -1012,8 +1051,8 @@ const describe = (d) => {
 
     if (d.msg) {
         if (d.msg === "NO GAME RUNNING") {
-            out += '<div class="gameName" id="gameName">No game running</div>';
-            return out;
+            // Hide the entire current game section when no game is running
+            return "";
         }
         if (d.msg === "ERROR") {
             out += '<div class="gameName" id="gameName">Notification service unreachable</div>';
@@ -1103,13 +1142,25 @@ const initializeWebSocket = () => {
         const d = event.data;
         if (PREVDATA !== d) {
             const dd = JSON.parse(d);
-            latestOutput.innerHTML = describe(dd);
+            const content = describe(dd);
+            latestOutput.innerHTML = content;
+            // Hide the current game section if no content
+            if (content === "") {
+                latestOutput.style.display = "none";
+            } else {
+                latestOutput.style.display = "block";
+            }
             PREVDATA = d;
+            // Recalculate layout when visibility changes
+            requestAnimationFrame(recalcTopPads);
         }
     };
     ws.onclose = function() {
         const message = { "msg": "ERROR" };
-        latestOutput.innerHTML = describe(message);
+        const content = describe(message);
+        latestOutput.innerHTML = content;
+        latestOutput.style.display = content === "" ? "none" : "block";
+        requestAnimationFrame(recalcTopPads);
     };
 };
 

@@ -30,7 +30,7 @@ html, body { height: 100%; overflow-x: hidden; }
 body { background: radial-gradient(1200px 600px at 50% 60%, #2c3350 0%, #1f2a3d 50%, #1b202c 100%) fixed; color: #e8ecef; min-width: 100%; min-height: 100vh; padding-top: 56px; padding-bottom: 120px; overflow-x: hidden; }
 body.padded { padding-top: var(--total-top-pad, 118px); padding-bottom: var(--bottom-pad, 92px); }
 body > div.row { display: block !important; margin: 0 !important; width: 100% !important; }
-#gameList { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
+#gameList { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box; margin: 0 8px; }
 #jumbo { max-width: 60vw; color: #d1d7de; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #jumbo img { max-height: 40px; height: auto; width: auto; object-fit: contain; }
 .currentborder #sysName img { max-height: 24px; width: auto; height: auto; object-fit: contain; }
@@ -41,7 +41,7 @@ body > div.row { display: block !important; margin: 0 !important; width: 100% !i
 #jumbo .imgArt { max-height: 44px; width: auto; height: auto; object-fit: contain; }
 #gameList > .row { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--gap); width: 100%; margin: 0 auto !important; padding: var(--gap); box-sizing: border-box; align-items: stretch; }
 /* List view */
-.list-container { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.list-container { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px; }
 .list-item { display: grid; grid-template-columns: 64px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: var(--card-bg); }
 .list-item .li-thumb img { width: 64px; height: 48px; object-fit: contain; border-radius: 4px; background: rgba(255,255,255,.02); }
 .list-item .li-main { min-width: 0; }
@@ -51,7 +51,7 @@ body > div.row { display: block !important; margin: 0 !important; width: 100% !i
 .list-item .li-actions .btn { padding: .2rem .45rem; margin-left: 6px; vertical-align: middle; }
 .card.card-game { background: var(--card-bg) !important; border: 1px solid var(--card-border) !important; border-radius: var(--radius) !important; box-shadow: var(--card-shadow); display: flex; flex-direction: column; overflow: hidden !important; transition: transform .15s ease, box-shadow .15s ease; min-width: 0; }
 .card.card-game:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
-.card-img-top.card-img-150 { height: 180px !important; object-fit: contain; width: 100%; background: rgba(255,255,255,.02); }
+.card-img-top.card-img-150 { height: 180px !important; object-fit: contain; width: 100%; background: rgba(255,255,255,.02); margin-top: 8px; }
 .card-title-50 { height: 50px !important; object-fit: contain; object-position: center; background: rgba(255,255,255,.03); border-bottom: 1px solid rgba(255,255,255,.06); padding: 6px; }
 .card-game .card-title.text-center { font-weight: 600; font-size: .95rem; padding: 8px 10px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-game .card-text { padding: 6px 10px 0 10px; color: #cfd6dd; overflow: hidden !important; }
@@ -136,13 +136,13 @@ nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width:
 .btn-group [id^="view-"]:focus { box-shadow: 0 0 0 .2rem rgba(59,130,246,.25); }
 .btn-group [id^="view-"].is-current { background: transparent !important; color: #e8ecef; border-color: #9ec1ff; }
 .btn-group [id^="view-"]:hover { background: rgba(255,255,255,.08); }
-#sysbar { position: relative; width: 100vw; max-width: 100%; padding: 6px 44px; box-sizing: border-box; margin-left: calc(50% - 50vw); }
+#sysbar { position: relative; width: 100vw; max-width: 100%; padding: 6px 44px; box-sizing: border-box; margin: 0 auto; left: 50%; transform: translateX(-50%); }
 .sys-toolbar{ display:flex; align-items:center; gap:8px; margin: 2px 0 6px 0; flex-wrap:wrap; }
 .sys-toolbar input[type="search"]{ min-width: 160px; border-radius: 6px; border: 1px solid var(--sys-border); background: #1b1f24; color: #e2e8f0; padding: 2px 6px; font-size: .85rem; }
 .sys-toolbar select, .sys-toolbar button { border-radius: 6px; border: 1px solid var(--sys-border); background: #1b1f24; color: #e2e8f0; padding: 2px 8px; font-size: .85rem; }
 .sys-toolbar .spacer { flex:1 1 auto; }
 .sys-clip{ position: relative; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
-.sys-strip{ display:flex; align-items:center; gap: var(--sys-gap); overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:4px 0; margin-bottom:-16px; padding-bottom:16px; }
+.sys-strip{ display:flex; align-items:center; justify-content:flex-start; gap: var(--sys-gap); overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; padding:4px 0; margin-bottom:-16px; padding-bottom:16px; }
 .sys-item{ position:relative; height:var(--sys-h); min-width:calc(var(--sys-h) * 1.7); max-width:240px; display:inline-flex; align-items:center; justify-content:center; background:var(--sys-bg); border:1px solid var(--sys-border); border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.25); padding:var(--sys-pad); user-select:none; cursor:pointer; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; overflow:hidden; }
 .sys-item:hover{ transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.35); }
 .sys-item.active{ outline: 2px solid var(--sys-accent); }
@@ -152,9 +152,9 @@ nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width:
 .pin{ position:absolute; top:4px; right:6px; color:var(--sys-pin); font-size:16px; text-shadow:0 2px 4px rgba(0,0,0,.4); opacity:.9; }
 .count{ position:absolute; bottom:2px; right:6px; font-size:.75rem; color:#cbd5e1; background:rgba(0,0,0,.35); padding:2px 6px; border-radius:12px; border:1px solid rgba(255,255,255,.12); }
 .recent{ position:absolute; bottom:2px; left:6px; font-size:.7rem; color:#9ae6b4; background:rgba(0,0,0,.35); padding:2px 6px; border-radius:12px; border:1px solid rgba(255,255,255,.12); }
-.sys-arrow{ position:absolute; top:50%; transform:translateY(-50%); width:36px; height:36px; border-radius:50%; border:1px solid var(--sys-border); background:rgba(20,22,27,.75); color:#e2e8f0; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:1031; transition: background .12s ease, transform .12s ease; }
-.sys-arrow:hover{ background:rgba(20,22,27,.95); transform:translateY(-50%) scale(1.05); }
-.sys-arrow.left{ left:8px; } .sys-arrow.right{ right:8px; }
+.sys-arrow{ position:absolute; top:50%; transform:translateY(-50%); margin-top:18px; width:40px; height:var(--sys-h); border-radius:5px; border:1px solid var(--sys-border); background:rgba(20,22,27,.85); color:#e2e8f0; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:1031; transition: background .12s ease; }
+.sys-arrow:hover{ background:rgba(20,22,27,.95); }
+.sys-arrow.left{ left:0px; } .sys-arrow.right{ right:0px; }
 .hide-scrollbars, .hide-scrollbars * { scrollbar-width: none !important; }
 .hide-scrollbars::-webkit-scrollbar, .hide-scrollbars *::-webkit-scrollbar { width:0 !important; height:0 !important; background:transparent !important; }
 .thin-scrollbars, .thin-scrollbars * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }
@@ -214,6 +214,27 @@ nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width:
   /* List view tweaks */
   .list-item { grid-template-columns: 56px 1fr auto; gap: 8px; padding: 8px; }
   .list-item .li-thumb img { width: 56px; height: 42px; object-fit: contain; }
+}
+
+/* Systems modal styles */
+@media (min-width: 769px){ 
+  #systemsModal .modal-dialog { height: 85vh; max-width: 95vw; width: 95vw; margin: 1.75rem 2.5vw; } 
+  #systemsModal .modal-content { height: 100%; } 
+  #systemsModal .modal-body { overflow-y:auto; } 
+}
+@media (max-width: 768px){ 
+  #systemsModal .modal-dialog { margin:0; max-width:100vw; width:100vw; height:100vh; } 
+  #systemsModal .modal-content{ height:100%; border-radius:0; } 
+}
+#systemsModalList .list-group-item{ 
+  display:flex; align-items:center; gap:10px; cursor:pointer; 
+  background:#111827; color:#e5e7eb; border-color: rgba(255,255,255,.08); 
+}
+#systemsModalList .list-group-item:hover{ background:#1f2937; }
+#systemsModalList .sys-logo{ width:56px; height:40px; object-fit:contain; }
+#systemsModalList .sys-text{ 
+  flex:1 1 auto; min-width:0; white-space:nowrap; 
+  overflow:hidden; text-overflow:ellipsis; 
 }
 
 /* Force #topNav to be hidden by default on small screens unless .show is present */
