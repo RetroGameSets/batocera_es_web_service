@@ -36,14 +36,14 @@ body > div.row { display: block !important; margin: 0 !important; width: 100% !i
 .currentborder #sysName img { max-height: 24px; width: auto; height: auto; object-fit: contain; }
 .sysName { color:#efefef; font-size:14px; font-weight:700; text-transform:uppercase; cursor:pointer; max-width: 600px; }
 .gameName { color:#ffffff; font-size:14px; font-weight:800; text-transform:uppercase; cursor:pointer; max-width: 600px; }
-.currentborder { border: 2px solid #CFCFCF; border-radius: 5px; padding: 3px; margin: 3px; }
+.currentborder { border: 2px solid #CFCFCF; border-radius: 5px; padding: 3px; margin: 3px 3px 0 3px; }
 .imgArt { max-width: 100%; height: auto; }
 #jumbo .imgArt { max-height: 44px; width: auto; height: auto; object-fit: contain; }
 #gameList > .row { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--gap); width: 100%; margin: 0 auto !important; padding: var(--gap); box-sizing: border-box; align-items: stretch; }
 /* List view */
 .list-container { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
 .list-item { display: grid; grid-template-columns: 64px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: var(--card-bg); }
-.list-item .li-thumb img { width: 64px; height: 48px; object-fit: cover; border-radius: 4px; }
+.list-item .li-thumb img { width: 64px; height: 48px; object-fit: contain; border-radius: 4px; background: rgba(255,255,255,.02); }
 .list-item .li-main { min-width: 0; }
 .list-item .li-title { font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .list-item .li-meta { font-size: .8rem; color: #aab3bb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -51,11 +51,13 @@ body > div.row { display: block !important; margin: 0 !important; width: 100% !i
 .list-item .li-actions .btn { padding: .2rem .45rem; margin-left: 6px; vertical-align: middle; }
 .card.card-game { background: var(--card-bg) !important; border: 1px solid var(--card-border) !important; border-radius: var(--radius) !important; box-shadow: var(--card-shadow); display: flex; flex-direction: column; overflow: hidden !important; transition: transform .15s ease, box-shadow .15s ease; min-width: 0; }
 .card.card-game:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
-.card-img-top.card-img-150 { height: 180px !important; object-fit: cover; width: 100%; }
+.card-img-top.card-img-150 { height: 180px !important; object-fit: contain; width: 100%; background: rgba(255,255,255,.02); }
 .card-title-50 { height: 50px !important; object-fit: contain; object-position: center; background: rgba(255,255,255,.03); border-bottom: 1px solid rgba(255,255,255,.06); padding: 6px; }
 .card-game .card-title.text-center { font-weight: 600; font-size: .95rem; padding: 8px 10px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-game .card-text { padding: 6px 10px 0 10px; color: #cfd6dd; overflow: hidden !important; }
 .card-game .card-text p { margin: 0 0 4px 0; font-size: .85rem; }
+.card-game .card-text p.game-name { font-weight: 700; font-size: .95rem; color: #f8fafc; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-game .card-text p.game-genre { color: #94a3b8; font-size: .8rem; }
 .card-game .fa { color: #ffc107; }
 .card-game .card-footer { border-top: 1px solid rgba(255,255,255,.06); background: transparent; display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: auto; padding: 10px; }
 .card-game .btn { padding: .25rem .6rem; }
@@ -93,7 +95,7 @@ body > div.row { display: block !important; margin: 0 !important; width: 100% !i
 .close { color: #e5e7eb; text-shadow: none; opacity: .85; }
 .close:hover { opacity: 1; }
 .modal-backdrop.show { opacity: .65; }
-.toolbar { position: fixed; top: var(--toolbar-top, 64px); left: 0; right: 0; z-index: 1030; background: rgba(33,37,41,.98); border-bottom: 1px solid rgba(255,255,255,.08); padding: .35rem .75rem; color: #e8ecef; backdrop-filter: blur(4px); box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+.toolbar { position: fixed; top: var(--toolbar-top, 64px); left: 0; right: 0; z-index: 1020; background: rgba(33,37,41,.98); border-bottom: 1px solid rgba(255,255,255,.08); padding: .25rem .75rem; color: #e8ecef; backdrop-filter: blur(4px); box-shadow: 0 8px 20px rgba(0,0,0,.35); }
 .toolbar.hidden { display: none !important; }
 .tools { display: flex; align-items: center; gap: .5rem .75rem; flex-wrap: wrap; overflow-x: visible; -webkit-overflow-scrolling: touch; }
 .tools .form-control, .tools .custom-select { width: auto; display: inline-block; min-width: 0; background:#1b1f24; color:#e2e8f0; border:1px solid rgba(255,255,255,.12); }
@@ -119,6 +121,7 @@ nav.navbar.fixed-bottom > .mx-auto { width: 100%; }
 .bottom-bar .pager { margin: 0; gap:.25rem; display:flex; align-items:center; white-space:nowrap; }
 .bottom-bar .pager .btn { padding: .1rem .35rem; line-height: 1.1; }
 .bottom-bar select { max-width: 120px; background:#1b1f24; color:#e2e8f0; border:1px solid rgba(255,255,255,.12); }
+
 nav.navbar.fixed-top .navbar-nav > .nav-item { margin-right: .5rem; }
 nav.navbar.fixed-top .navbar-brand { margin-right: .75rem; }
 /* Keep +/- zoom on one line */
@@ -127,6 +130,12 @@ nav.navbar.fixed-top .navbar-brand { margin-right: .75rem; }
 /* Improve vertical spacing in hamburger (collapsed) menu */
 nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item { margin: 6px 8px; }
 nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width: 100%; }
+/* View toggle buttons should be outlined only when selected (no white fill) */
+.btn-group [id^="view-"] { border-color: rgba(255,255,255,.4); color: #e8ecef; background: transparent; }
+.btn-group [id^="view-"].is-current,
+.btn-group [id^="view-"]:focus { box-shadow: 0 0 0 .2rem rgba(59,130,246,.25); }
+.btn-group [id^="view-"].is-current { background: transparent !important; color: #e8ecef; border-color: #9ec1ff; }
+.btn-group [id^="view-"]:hover { background: rgba(255,255,255,.08); }
 #sysbar { position: relative; width: 100vw; max-width: 100%; padding: 6px 44px; box-sizing: border-box; margin-left: calc(50% - 50vw); }
 .sys-toolbar{ display:flex; align-items:center; gap:8px; margin: 2px 0 6px 0; flex-wrap:wrap; }
 .sys-toolbar input[type="search"]{ min-width: 160px; border-radius: 6px; border: 1px solid var(--sys-border); background: #1b1f24; color: #e2e8f0; padding: 2px 6px; font-size: .85rem; }
@@ -158,7 +167,7 @@ nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width:
 @media (max-width: 768px) {
   :root { --gap: 12px; }
   #gameList > .row { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); padding: 12px; gap: 12px; }
-  .card-img-top.card-img-150 { height: clamp(120px, 45vw, 220px) !important; }
+  .card-img-top.card-img-150 { height: clamp(120px, 45vw, 220px) !important; object-fit: contain; }
   .card-title-50 { height: 44px !important; padding: 4px; }
   .toolbar { padding: .3rem .55rem; }
   .tools { gap: .45rem .5rem; }
@@ -197,12 +206,18 @@ nav.navbar.fixed-top .navbar-collapse.show .navbar-nav > .nav-item .btn { width:
   .ck-group { flex-direction: row; flex-wrap: wrap; }
   .pager { justify-content: center; }
   #gameList > .row { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); padding: 10px; gap: 10px; }
-  .card-img-top.card-img-150 { height: clamp(120px, 55vw, 220px) !important; }
+  .card-img-top.card-img-150 { height: clamp(120px, 55vw, 220px) !important; object-fit: contain; }
   .card-game .btn { padding: .22rem .5rem; }
   /* Systems dock even more compact */
   :root { --sys-h: 54px; --sys-gap: 6px; }
   .sys-item { min-width: calc(var(--sys-h) * 2.2); }
   /* List view tweaks */
   .list-item { grid-template-columns: 56px 1fr auto; gap: 8px; padding: 8px; }
-  .list-item .li-thumb img { width: 56px; height: 42px; }
+  .list-item .li-thumb img { width: 56px; height: 42px; object-fit: contain; }
+}
+
+/* Force #topNav to be hidden by default on small screens unless .show is present */
+@media (max-width: 768px) {
+  #topNav { display: none; }
+  #topNav.show { display: block; }
 }
