@@ -486,6 +486,7 @@ const createListItemElement = (game) => {
                 data-rating="${escapeHtml(String(game.rating||''))}"
                 data-lastplayed="${escapeHtml(String(game.lastplayed||''))}"
                 data-favorite="${isFavGame(game)}"
+                data-cheevosid="${escapeHtml(String(game.cheevosId||''))}"
                 data-id="${escapeHtml(String(game.id||''))}"
             >Infos</button>
         </div>
